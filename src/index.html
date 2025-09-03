@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>Audionyx</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="app-title">AUDIONYX</h1>
+      <div class="button-wrapper">
+        <button class="toggle-btn" id="micToggle">
+          <div class="icon-wrapper">
+            <svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 15C13.6569 15 15 13.6569 15 12V6C15 4.34315 13.6569 3 12 3C10.3431 3 9 4.34315 9 6V12C9 13.6569 10.3431 15 12 15Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <path
+                d="M19 12C19 15.866 15.866 19 12 19M5 12C5 15.866 8.13401 19 12 19M12 19V22"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+        </button>
+        <div class="pulse-ring"></div>
+      </div>
+      <div class="visualizer">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+      <div class="status" id="status">Mic off</div>
+      <div class="connection-dot"></div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
+
