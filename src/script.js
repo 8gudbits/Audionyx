@@ -41,6 +41,41 @@ function stopAnimation() {
   initBars();
 }
 
+async function getBuiltInMicrophone() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const audioInputs = devices.filter(
+      (device) => device.kind === "audioinput"
+    );
+
+    const builtInMic = audioInputs.find((device) => {
+      const label = device.label.toLowerCase();
+      return (
+        !label.includes("bluetooth") &&
+        !label.includes("headset") &&
+        !label.includes("headphone") &&
+        !label.includes("hands-free")
+      );
+    });
+
+    return builtInMic ? builtInMic.deviceId : undefined;
+  } catch (err) {
+    console.error("Error getting microphone devices:", err);
+    return undefined;
+  }
+}
+
+async function setAudioOutput(audioContext) {
+  if (audioContext.setSinkId) {
+    try {
+      await audioContext.setSinkId("");
+      console.log("Audio output set to system default");
+    } catch (err) {
+      console.log("Audio output routing not supported:", err);
+    }
+  }
+}
+
 async function toggleMic() {
   if (!isMicActive) {
     await startMic();
@@ -54,8 +89,30 @@ async function startMic() {
     statusText.textContent = "Connecting";
     statusText.style.color = "var(--accent-primary)";
 
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const builtInMicId = await getBuiltInMicrophone();
+
+    const constraints = {
+      audio: {
+        deviceId: builtInMicId ? { exact: builtInMicId } : undefined,
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+        channelCount: 1,
+        sampleRate: 44100,
+      },
+    };
+
+    console.log("Requesting microphone with constraints:", constraints);
+    micStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+    const audioTracks = micStream.getAudioTracks();
+    if (audioTracks.length > 0) {
+      console.log("Using audio device:", audioTracks[0].label);
+    }
+
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    await setAudioOutput(audioContext);
 
     if (audioContext.state === "suspended") {
       await audioContext.resume();
@@ -66,6 +123,7 @@ async function startMic() {
 
     sourceNode = audioContext.createMediaStreamSource(micStream);
     sourceNode.connect(analyser);
+
     analyser.connect(audioContext.destination);
 
     isMicActive = true;
@@ -76,12 +134,39 @@ async function startMic() {
     animateBars();
   } catch (err) {
     console.error("Mic routing failed:", err);
-    statusText.textContent = "Error";
-    statusText.style.color = "var(--error)";
-    setTimeout(() => {
-      statusText.textContent = "Mic off";
-      statusText.style.color = "var(--text-secondary)";
-    }, 2000);
+
+    try {
+      console.log("Trying fallback with basic audio constraints");
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+      if (audioContext.state === "suspended") {
+        await audioContext.resume();
+      }
+
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+
+      sourceNode = audioContext.createMediaStreamSource(micStream);
+      sourceNode.connect(analyser);
+      analyser.connect(audioContext.destination);
+
+      isMicActive = true;
+      toggleBtn.classList.add("active");
+      statusText.textContent = "Mic live";
+      statusText.style.color = "var(--error)";
+
+      animateBars();
+    } catch (fallbackErr) {
+      console.error("Fallback also failed:", fallbackErr);
+      statusText.textContent = "Error";
+      statusText.style.color = "var(--error)";
+      setTimeout(() => {
+        statusText.textContent = "Mic off";
+        statusText.style.color = "var(--text-secondary)";
+      }, 2000);
+    }
   }
 }
 
