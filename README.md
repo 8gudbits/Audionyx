@@ -21,10 +21,13 @@ An app that lets you listen remotely to what's happening around your phone from 
 - Real-time audio streaming to Bluetooth devices
 - Simple one-touch operation
 
-## Download
+## How to Get
 
-- Android App: [Download APK](https://github.com/8gudbits/Audionyx/releases)
-- Web Version: [Use Online](https://8gudbits.github.io/apps.noman/audionyx/)
+### Android App
+- For mobile devices, the Android APK is available for download: [Download APK](https://github.com/8gudbits/Audionyx/releases)
 
-Listen remotely to what's happening around your phone from anywhere with Bluetooth range
+### Use Online
+- Visit [apps.noman/audionyx](https://8gudbits.github.io/apps.noman/audionyx/) to access the web version directly in any browser. No installation required.
+
+Listen remotely to what's happening around your phone from anywhere with Bluetooth range!
 
